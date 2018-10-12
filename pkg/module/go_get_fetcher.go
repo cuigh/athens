@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gomods/athens/pkg/replace/mirror"
+	"github.com/gomods/athens/pkg/replace/pack"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -71,10 +73,20 @@ func (g *goGetFetcher) Fetch(ctx context.Context, mod, ver string) (*storage.Ver
 		return nil, errors.E(op, err)
 	}
 
-	m, err := downloadModule(g.goBinaryName, g.fs, goPathRoot, modPath, mod, ver)
+	replace := mirror.Find(mod)
+	m, err := downloadModule(g.goBinaryName, g.fs, goPathRoot, modPath, replace, ver)
 	if err != nil {
 		ClearFiles(g.fs, goPathRoot)
 		return nil, errors.E(op, err)
+	}
+
+	if replace != mod {
+		if err = pack.ModifyZip(m.Zip, mod); err != nil {
+			return nil, errors.E(op, err)
+		}
+		if err = pack.ModifyMod(m.GoMod, mod, replace); err != nil {
+			return nil, errors.E(op, err)
+		}
 	}
 
 	var storageVer storage.Version

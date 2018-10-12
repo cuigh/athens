@@ -6,9 +6,11 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gomods/athens/pkg/errors"
+	"github.com/gomods/athens/pkg/replace/mirror"
 	"github.com/kelseyhightower/envconfig"
 	validator "gopkg.in/go-playground/validator.v9"
 )
@@ -42,6 +44,7 @@ type Config struct {
 	SingleFlightType string `envconfig:"ATHENS_SINGLE_FLIGHT_TYPE"`
 	SingleFlight     *SingleFlight
 	Storage          *StorageConfig
+	Mirrors          []string
 }
 
 // Load loads the config from a file.
@@ -132,6 +135,9 @@ func ParseConfigFile(configFile string) (*Config, error) {
 		return nil, err
 	}
 
+	// set mirrors
+	setMirrors(config.Mirrors)
+
 	// validate all required fields have been populated
 	if err := validateConfig(config); err != nil {
 		return nil, err
@@ -219,4 +225,13 @@ func checkFilePerms(files ...string) error {
 	}
 
 	return nil
+}
+
+func setMirrors(mirrors []string) {
+	for _, m := range mirrors {
+		pair := strings.SplitN(m, "=>", 2)
+		if len(pair) == 2 {
+			mirror.Register(strings.TrimSpace(pair[0]), strings.TrimSpace(pair[1]))
+		}
+	}
 }

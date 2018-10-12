@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/gomods/athens/pkg/replace/mirror"
 	"os/exec"
 	"time"
 
@@ -52,7 +53,7 @@ func (l *vcsLister) List(ctx context.Context, mod string) (*storage.RevInfo, []s
 	cmd := exec.Command(
 		l.goBinPath,
 		"list", "-m", "-versions", "-json",
-		config.FmtModVer(mod, "latest"),
+		config.FmtModVer(mirror.Find(mod), "latest"),
 	)
 	cmd.Dir = hackyPath
 	stdout := &bytes.Buffer{}

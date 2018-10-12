@@ -162,6 +162,16 @@ StatsExporter = "prometheus"
 # Env override: ATHENS_SINGLE_FLIGHT_TYPE
 SingleFlightType = "memory"
 
+# Repository mirrors
+Mirrors = [
+    "golang.org/x/(.*) => github.com/golang/$1",
+    "google.golang.org/appengine => github.com/golang/appengine",
+    "google.golang.org/genproto => github.com/google/go-genproto",
+    "google.golang.org/grpc => github.com/grpc/grpc-go",
+    "google.golang.org/api => github.com/googleapis/google-api-go-client",
+    "cloud.google.com/go => github.com/googleapis/google-cloud-go",
+]
+
 [SingleFlight]
     [SingleFlight.Etcd]
         # Endpoints are comma separated URLs that determine all distributed etcd servers.
